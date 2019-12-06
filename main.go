@@ -59,7 +59,11 @@ func main() {
 		q := r.Form
 		rr := make(map[string]interface{})
 		for k, _ := range q {
-			if v := q.Get(k); v != "" && v != "nil" && !strings.HasPrefix(v, "sys.ding.") {
+			if strings.HasPrefix(k, "sys.ding.") {
+				continue
+			}
+
+			if v := q.Get(k); v != "" && v != "nil" {
 				rr[k] = q.Get(k)
 			}
 		}
