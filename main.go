@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	oe "github.com/ossrs/go-oryx-lib/errors"
 	oh "github.com/ossrs/go-oryx-lib/http"
 	ol "github.com/ossrs/go-oryx-lib/logger"
 	"io/ioutil"
@@ -71,7 +72,7 @@ func main() {
 		}
 		br := make(map[string]interface{})
 		if err := json.Unmarshal(b, br); err != nil {
-			oh.WriteError(ctx, w, r, err)
+			oh.WriteError(ctx, w, r, oe.Wrapf(err, "unmarshal %v", string(b)))
 			return
 		}
 		for k, v := range br {
