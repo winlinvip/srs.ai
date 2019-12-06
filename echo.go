@@ -29,7 +29,7 @@ func DependsEnv(ctx context.Context, env string) string {
 		return "可以，需要替换ST(state-threads)，参考[这里](https://github.com/ossrs/state-threads/tree/srs#usage)"
 	case "Windows":
 		return "不支持，不过可以用docker运行，参考[这里](https://github.com/ossrs/srs/wiki/v1_CN_WindowsSRS)"
-	case "iOS":
+	case "thingOS":
 		return "不支持"
 	}
 	return "Not sure"
