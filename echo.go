@@ -23,7 +23,7 @@ func DependsEnv(ctx context.Context, env string) string {
 	switch env {
 	case "CentOS", "x86-64":
 		return "很好，官方支持，建议直接用docker运行，参考[这里](https://github.com/ossrs/srs-docker/tree/srs3)"
-	case "Linux", "UNIX":
+	case "Linux", "Unix":
 		return "可以，建议用docker[编译调试](https://github.com/ossrs/srs-docker/tree/dev)和[运行](https://github.com/ossrs/srs-docker/tree/srs3)"
 	case "ARM":
 		return "可以，需要替换ST(state-threads)，参考[这里](https://github.com/ossrs/state-threads/tree/srs#usage)"
