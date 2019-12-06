@@ -87,5 +87,9 @@ func main() {
 }
 
 func AIEcho(ctx context.Context, q url.Values) interface{} {
-	return "Success"
+	key := q.Get("key")
+	arg0, arg1, arg2, arg3, arg4 := q.Get("arg0"), q.Get("arg1"), q.Get("arg2"), q.Get("arg3"), q.Get("arg4")
+	ol.Tf(ctx, "AI echo key=%v, args=%v", key, []string{arg0, arg1, arg2, arg3, arg4})
+
+	return key
 }
