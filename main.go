@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	oh "github.com/ossrs/go-oryx-lib/http"
 	ol "github.com/ossrs/go-oryx-lib/logger"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -54,10 +56,26 @@ func main() {
 			return
 		}
 
+		// Query string.
 		q := r.Form
-		rr := make(map[string]string)
+		rr := make(map[string]interface{})
 		for k, _ := range q {
 			rr[k] = q.Get(k)
+		}
+
+		// Body in json.
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			oh.WriteError(ctx, w, r, err)
+			return
+		}
+		br := make(map[string]interface{})
+		if err := json.Unmarshal(b, br); err != nil {
+			oh.WriteError(ctx, w, r, err)
+			return
+		}
+		for k, v := range br {
+			rr[k] = v
 		}
 
 		ol.Tf(ctx, "Echo %v with %v", r.URL, rr)
