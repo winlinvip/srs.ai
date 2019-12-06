@@ -53,7 +53,7 @@ func main() {
 	ol.Tf(ctx, "Handle %v", pattern)
 	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
-			oh.WriteError(ctx, w, r, err)
+			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v", r.URL))
 			return
 		}
 
@@ -70,13 +70,15 @@ func main() {
 			oh.WriteError(ctx, w, r, err)
 			return
 		}
-		br := make(map[string]interface{})
-		if err := json.Unmarshal(b, br); err != nil {
-			oh.WriteError(ctx, w, r, oe.Wrapf(err, "unmarshal %v", string(b)))
-			return
-		}
-		for k, v := range br {
-			rr[k] = v
+		if len(b) > 0 {
+			br := make(map[string]interface{})
+			if err := json.Unmarshal(b, br); err != nil {
+				oh.WriteError(ctx, w, r, oe.Wrapf(err, "unmarshal %v", string(b)))
+				return
+			}
+			for k, v := range br {
+				rr[k] = v
+			}
 		}
 
 		ol.Tf(ctx, "Echo %v with %v", r.URL, rr)
