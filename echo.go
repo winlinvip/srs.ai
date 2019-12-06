@@ -26,7 +26,7 @@ func DependsEnv(ctx context.Context, env string) string {
 	case "Linux", "UNIX":
 		return "可以，建议用docker编译"
 	case "ARM":
-		return "可以，需要替换state-threads"
+		return "可以，需要替换[state-threads](https://github.com/ossrs/state-threads/tree/srs#usage)"
 	case "Windows":
 		return "不支持，不过可以用docker"
 	}
