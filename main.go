@@ -61,7 +61,7 @@ func main() {
 		q := r.Form
 		rr := make(map[string]interface{})
 		for k, _ := range q {
-			if v := q.Get(k); v != "nil" {
+			if v := q.Get(k); v != "" && v != "nil" {
 				rr[k] = q.Get(k)
 			}
 		}
@@ -79,7 +79,7 @@ func main() {
 				return
 			}
 			for k, v := range br {
-				if v != "nil" {
+				if v != "" && v != "nil" {
 					rr[k] = v
 				}
 			}
