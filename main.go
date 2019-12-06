@@ -60,6 +60,7 @@ func main() {
 			rr[k] = q.Get(k)
 		}
 
+		ol.Tf(ctx, "Echo %v with %v", r.URL, rr)
 		oh.WriteData(ctx, w, r, rr)
 	})
 
