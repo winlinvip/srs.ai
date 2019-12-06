@@ -22,13 +22,13 @@ func AIEcho(ctx context.Context, q url.Values) interface{} {
 func DependsEnv(ctx context.Context, env string) string {
 	switch env {
 	case "CentOS", "x86-64":
-		return "很好，官方支持"
+		return "很好，官方支持，建议直接用docker运行，参考[这里](https://github.com/ossrs/srs-docker#srs3)"
 	case "Linux", "UNIX":
-		return "可以，建议用docker编译"
+		return "可以，建议用docker[编译调试](https://github.com/ossrs/srs-docker#dev)和[运行](https://github.com/ossrs/srs-docker#srs3)"
 	case "ARM":
-		return "可以，需要替换[state-threads](https://github.com/ossrs/state-threads/tree/srs#usage)"
+		return "可以，需要替换ST(state-threads)，参考[这里](https://github.com/ossrs/state-threads/tree/srs#usage)"
 	case "Windows":
-		return "不支持，不过可以用docker"
+		return "不支持，不过可以用docker运行，参考[这里](https://github.com/ossrs/srs/wiki/v1_CN_WindowsSRS)"
 	}
 	return "Not sure"
 }
