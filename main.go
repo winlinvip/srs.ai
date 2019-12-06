@@ -61,7 +61,9 @@ func main() {
 		q := r.Form
 		rr := make(map[string]interface{})
 		for k, _ := range q {
-			rr[k] = q.Get(k)
+			if v := q.Get(k); v != "nil" {
+				rr[k] = q.Get(k)
+			}
 		}
 
 		// Body in json.
@@ -77,7 +79,9 @@ func main() {
 				return
 			}
 			for k, v := range br {
-				rr[k] = v
+				if v != "nil" {
+					rr[k] = v
+				}
 			}
 		}
 
