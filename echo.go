@@ -18,12 +18,17 @@ func AIEcho(ctx context.Context, q url.Values) interface{} {
 	return "Not sure"
 }
 
-// http://one-voice-platform.alibaba-inc.com/robot/entityDetail.htm?appId=21516&id=8759
+// 实体：依赖环境
 func DependsEnv(ctx context.Context, env string) string {
 	switch env {
-	case "CentOS":
+	case "CentOS", "x86-64":
 		return "很好，官方支持"
-	case "Linux":
+	case "Linux", "UNIX":
+		return "可以，建议用docker编译"
+	case "ARM":
+		return "可以，需要替换state-threads"
+	case "Windows":
+		return "不支持，不过可以用docker"
 	}
 	return "Not sure"
 }

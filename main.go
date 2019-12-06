@@ -70,7 +70,6 @@ func main() {
 		oh.WriteData(ctx, w, r, rr)
 	})
 
-	// https://yuque.antfin-inc.com/bot_factory/botfactory/service_use
 	oh.FilterData = func(ctx ol.Context, w http.ResponseWriter, r *http.Request, o interface{}) interface{} {
 		return &struct {
 			Success      bool        `json:"success"`
