@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	oe "github.com/ossrs/go-oryx-lib/errors"
 	oh "github.com/ossrs/go-oryx-lib/http"
 	ol "github.com/ossrs/go-oryx-lib/logger"
-	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -66,24 +65,7 @@ func main() {
 			}
 		}
 
-		// Body in json.
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			oh.WriteError(ctx, w, r, err)
-			return
-		}
-		if len(b) > 0 {
-			br := make(map[string]interface{})
-			if err := json.Unmarshal(b, br); err != nil {
-				oh.WriteError(ctx, w, r, oe.Wrapf(err, "unmarshal %v", string(b)))
-				return
-			}
-			for k, v := range br {
-				if v != "" && v != "nil" {
-					rr[k] = v
-				}
-			}
-		}
+		rr["result"] = AIEcho(ctx, q)
 
 		ol.Tf(ctx, "Echo %v with %v", r.URL, rr)
 		oh.WriteData(ctx, w, r, rr)
@@ -102,4 +84,8 @@ func main() {
 	}
 
 	http.ListenAndServe(listen, nil)
+}
+
+func AIEcho(ctx context.Context, q url.Values) interface{} {
+	return "Success"
 }
