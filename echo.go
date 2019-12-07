@@ -22,7 +22,15 @@ func AIEcho(ctx context.Context, q url.Values) (interface{}, error) {
 
 	fnArg0 := func(pfn func(context.Context, string) string, ctx context.Context, arg0 string) []string {
 		rr := []string{}
+
+		keys := make(map[string]bool)
 		for _, arg0 := range strings.Split(arg0, ",") {
+			// Filter the duplicated key.
+			if _, ok := keys[arg0]; ok {
+				continue
+			}
+			keys[arg0] = true
+
 			rr = append(rr, fmt.Sprintf("**%v:** %v", arg0, pfn(ctx, arg0)))
 		}
 		return rr
