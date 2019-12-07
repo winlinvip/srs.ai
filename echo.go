@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	NotSure          = "不确定，请参考下面的说明，或换个提问方式"
+	NotSure          = "不确定，请参考[issues](https://github.com/ossrs/srs/issues?q=%v)，或换个提问方式"
 	UnknownKnowledge = "不知道，请换个提问方式"
 )
 
@@ -86,7 +86,7 @@ func AVCodec(ctx context.Context, env string) string {
 	case "SRT":
 		return "不支持，是广电常用的协议，参考[#1147](https://github.com/ossrs/srs/issues/1147)"
 	default:
-		return NotSure
+		return fmt.Sprintf(NotSure, env)
 	}
 }
 
@@ -104,6 +104,6 @@ func DependsEnv(ctx context.Context, env string) string {
 	case "thingOS":
 		return "不支持"
 	default:
-		return NotSure
+		return fmt.Sprintf(NotSure, env)
 	}
 }
