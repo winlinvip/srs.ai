@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	NotSure          = "不确定，请参考[issues](https://github.com/ossrs/srs/issues?q=%v)，或换个提问方式"
+	NotSure          = "不确定，请参考[issues](https://github.com/ossrs/srs/issues?q=%v)或换个提问方式"
 	UnknownKnowledge = "不知道，请换个提问方式"
 )
 
