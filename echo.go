@@ -83,6 +83,8 @@ func AVCodec(ctx context.Context, env string) string {
 		return "部分支持，不推荐，参考[#301](https://github.com/ossrs/srs/issues/301)和[#296](https://github.com/ossrs/srs/issues/296)"
 	case "Opus":
 		return "不支持，是WebRTC的音频编码，参考[#307](https://github.com/ossrs/srs/issues/307)"
+	case "SRT":
+		return "不支持，是广电常用的协议，参考[#1147](https://github.com/ossrs/srs/issues/1147)"
 	default:
 		return NotSure
 	}
