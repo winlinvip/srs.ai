@@ -68,7 +68,12 @@ func main() {
 			}
 		}
 
-		rr["result"] = AIEcho(ctx, q)
+		if result, err := AIEcho(ctx, q); err != nil {
+			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
+			return
+		} else {
+			rr["result"] = result
+		}
 
 		ol.Tf(ctx, "Echo %v with %v", r.URL, rr)
 		oh.WriteData(ctx, w, r, rr)
