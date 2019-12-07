@@ -81,7 +81,7 @@ func DependsEnv(ctx context.Context, env string) []string {
 
 	rr := []string{}
 	for _, env := range strings.Split(env, ",") {
-		rr = append(rr, fmt.Sprintf("%v: %v", env, fn(env)))
+		rr = append(rr, fmt.Sprintf("**%v:** %v", env, fn(env)))
 	}
 	return rr
 }
