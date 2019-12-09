@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	fc "github.com/aliyun/fc-go-sdk"
 	oe "github.com/ossrs/go-oryx-lib/errors"
 	oh "github.com/ossrs/go-oryx-lib/http"
 	ol "github.com/ossrs/go-oryx-lib/logger"
@@ -16,19 +17,28 @@ func main() {
 	var listen string
 	flag.StringVar(&listen, "listen", "", "The listen ip:port.")
 
+	flag.StringVar(&fcAKID, "akid", "", "The AKID for FC")
+	flag.StringVar(&fcAKSecret, "aksecret", "", "The AKSecret for FC")
+	flag.StringVar(&fcEndpoint, "endpoint", "", "The endpoint for FC")
+
 	flag.Usage = func() {
 		fmt.Println(fmt.Sprintf("AI/%v service for SRS", Version()))
 		fmt.Println(fmt.Sprintf("Usage: %v [options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("	-listen string"))
 		fmt.Println(fmt.Sprintf("		The listen [ip]:port. Empty ip means 0.0.0.0, any interface."))
+		fmt.Println(fmt.Sprintf("	-akid string"))
+		fmt.Println(fmt.Sprintf("	-aksecret string"))
+		fmt.Println(fmt.Sprintf("		The AK(AccessKey) ID and Secret for FC(Function Compute)."))
+		fmt.Println(fmt.Sprintf("	-endpoint string"))
+		fmt.Println(fmt.Sprintf("		The endpoint for FC."))
 		fmt.Println(fmt.Sprintf("For example:"))
-		fmt.Println(fmt.Sprintf("	%v -listen=:1988", os.Args[0]))
+		fmt.Println(fmt.Sprintf("	%v -listen=:1988 -akid=xxx -aksecret=xxx -endpoint=xxx", os.Args[0]))
 	}
 
 	flag.Parse()
 
-	if listen == "" {
+	if listen == "" || fcAKID == "" || fcAKSecret == "" {
 		flag.Usage()
 		os.Exit(-1)
 	}
@@ -39,7 +49,14 @@ func main() {
 
 	ctx := context.Background()
 	oh.Server = fmt.Sprintf("AI/%v", Version())
-	ol.Tf(ctx, "SRS AI/%v listen=%v", Version(), listen)
+	ol.Tf(ctx, "SRS AI/%v listen=%v, ak=<%v %v %v>", Version(), listen, fcAKID, fcAKSecret, fcEndpoint)
+
+	if client, err := fc.NewClient(fcEndpoint, "2016-08-15", fcAKID, fcAKSecret); err != nil {
+		ol.Ef(ctx, "fc err %+v", err)
+		os.Exit(-1)
+	} else {
+		fcClient = client
+	}
 
 	pattern := "/ai/v1/versions"
 	ol.Tf(ctx, "Handle %v", pattern)
