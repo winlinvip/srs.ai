@@ -117,6 +117,38 @@ func main() {
 		oh.WriteData(ctx, w, r, rr)
 	})
 
+	pattern = "/ai/v1/stat"
+	ol.Tf(ctx, "Handle %v", pattern)
+	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v", r.URL))
+			return
+		}
+
+		// Query string.
+		q, rr, qFiltered := r.Form, make(map[string]interface{}), url.Values{}
+		for k, _ := range q {
+			if strings.HasPrefix(k, "sys.ding.") {
+				continue
+			}
+
+			if v := q.Get(k); v != "" && v != "nil" {
+				rr[k] = q.Get(k)
+				qFiltered.Set(k, v)
+			}
+		}
+
+		if result, err := HTTPStat(ctx, r, q, qFiltered); err != nil {
+			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
+			return
+		} else {
+			rr["result"] = result
+		}
+
+		ol.Tf(ctx, "Stat %v headers=%v, q=%v with %v", r.URL, r.Header, q, rr)
+		oh.WriteData(ctx, w, r, rr)
+	})
+
 	oh.FilterData = func(ctx ol.Context, w http.ResponseWriter, r *http.Request, o interface{}) interface{} {
 		return &struct {
 			Success      bool        `json:"success"`
