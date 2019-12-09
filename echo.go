@@ -49,9 +49,18 @@ func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, er
 	qq := make(map[string]string)
 	qq["__tag__:__client_ip__"] = GetOriginalClientIP(r)
 	qq["oua"] = r.Header.Get("User-Agent")
-	qq["oreferer"] = r.Header.Get("Referer")
+	qq["__userAgent__"] = "agent"
 	qq["site"] = "robot.dingtalk.com"
 	qq["path"] = "/dingtalk/robot"
+	qq["cost"] = fmt.Sprint(int64(fcDuration / time.Millisecond))
+	referer := r.Header.Get("Referer")
+	qq["oreferer"] = referer
+	if referer != "" {
+		if u, err := url.Parse(referer); err == nil {
+			referer = u.Host
+		}
+		qq["__referer__"] = referer
+	}
 	if bb, err = json.Marshal(qq); err != nil {
 		return nil, err
 	}
