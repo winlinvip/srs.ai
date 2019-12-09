@@ -22,9 +22,9 @@ type reservedCapacityMetadata struct {
 
 // ListReservedCapacitiesOutput : ...
 type ListReservedCapacitiesOutput struct {
-	Header             http.Header
+	Header            http.Header
 	ReservedCapacities []*reservedCapacityMetadata `json:"reservedCapacities"`
-	NextToken          *string                     `json:"nextToken,omitempty"`
+	NextToken         *string                     `json:"nextToken,omitempty"`
 }
 
 // ListReservedCapacitiesInput : ...
