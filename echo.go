@@ -6,6 +6,8 @@ import (
 	"fmt"
 	fc "github.com/aliyun/fc-go-sdk"
 	ol "github.com/ossrs/go-oryx-lib/logger"
+	"io"
+	"net/http"
 	"net/url"
 	"time"
 )
@@ -22,7 +24,7 @@ var (
 	fcClient *fc.Client
 )
 
-func AIEcho(ctx context.Context, q url.Values) (interface{}, error) {
+func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, error) {
 	ts := time.Now()
 
 	args := make(map[string]string)
@@ -44,6 +46,19 @@ func AIEcho(ctx context.Context, q url.Values) (interface{}, error) {
 	fcDuration := time.Now().Sub(ts)
 	fcResponse := string(fcOut.Payload)
 
-	ol.Tf(ctx, "AI echo args=%v, fc %v cost %v", args, fcResponse, fcDuration)
+	qq := make(map[string]string)
+	qq["__tag__:__client_ip__"] = GetOriginalClientIP(r)
+	qq["oua"] = r.Header.Get("User-Agent")
+	qq["oreferer"] = r.Header.Get("Referer")
+	qq["site"] = "robot.dingtalk.com"
+	qq["path"] = "/dingtalk/robot"
+	if bb, err = json.Marshal(qq); err != nil {
+		return nil, err
+	}
+	if _, err := io.WriteString(gLogfile, string(bb)+"\n"); err != nil {
+		return nil, err
+	}
+
+	ol.Tf(ctx, "AI echo log %v, args=%v, fc cost %v result is %v", string(bb), args, fcDuration, fcResponse)
 	return fcResponse, nil
 }

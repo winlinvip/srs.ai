@@ -8,14 +8,20 @@ import (
 	oe "github.com/ossrs/go-oryx-lib/errors"
 	oh "github.com/ossrs/go-oryx-lib/http"
 	ol "github.com/ossrs/go-oryx-lib/logger"
+	"net"
 	"net/http"
 	"os"
 	"strings"
 )
 
+var gLogfile *os.File
+
 func main() {
 	var listen string
 	flag.StringVar(&listen, "listen", "", "The listen ip:port.")
+
+	var logfile string
+	flag.StringVar(&logfile, "log", "", "Log file path. Default: stdout")
 
 	flag.StringVar(&fcAKID, "akid", "", "The AKID for FC")
 	flag.StringVar(&fcAKSecret, "aksecret", "", "The AKSecret for FC")
@@ -27,6 +33,8 @@ func main() {
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("	-listen string"))
 		fmt.Println(fmt.Sprintf("		The listen [ip]:port. Empty ip means 0.0.0.0, any interface."))
+		fmt.Println(fmt.Sprintf("	-log string"))
+		fmt.Println(fmt.Sprintf("		The log file path. Default: stdout."))
 		fmt.Println(fmt.Sprintf("	-akid string"))
 		fmt.Println(fmt.Sprintf("	-aksecret string"))
 		fmt.Println(fmt.Sprintf("		The AK(AccessKey) ID and Secret for FC(Function Compute)."))
@@ -49,7 +57,19 @@ func main() {
 
 	ctx := context.Background()
 	oh.Server = fmt.Sprintf("AI/%v", Version())
-	ol.Tf(ctx, "SRS AI/%v listen=%v, ak=<%v %v %v>", Version(), listen, fcAKID, fcAKSecret, fcEndpoint)
+	ol.Tf(ctx, "SRS AI/%v listen=%v, log=%v, ak=<%v %v %v>", Version(), listen, logfile, fcAKID, fcAKSecret, fcEndpoint)
+
+	if logfile == "" {
+		gLogfile = os.Stdout
+	} else {
+		if lf, err := os.OpenFile(logfile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666); err != nil {
+			ol.Ef(ctx, "Open %v err %v", logfile, err)
+			os.Exit(-1)
+		} else {
+			defer lf.Close()
+			gLogfile = lf
+		}
+	}
 
 	if client, err := fc.NewClient(fcEndpoint, "2016-08-15", fcAKID, fcAKSecret); err != nil {
 		ol.Ef(ctx, "fc err %+v", err)
@@ -85,14 +105,14 @@ func main() {
 			}
 		}
 
-		if result, err := AIEcho(ctx, q); err != nil {
+		if result, err := AIEcho(ctx, r, q); err != nil {
 			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
 			return
 		} else {
 			rr["result"] = result
 		}
 
-		ol.Tf(ctx, "Echo %v with %v", r.URL, rr)
+		ol.Tf(ctx, "Echo %v headers=%v, q=%v with %v", r.URL, r.Header, q, rr)
 		oh.WriteData(ctx, w, r, rr)
 	})
 
@@ -108,4 +128,33 @@ func main() {
 	}
 
 	http.ListenAndServe(listen, nil)
+}
+
+func GetOriginalClientIP(r *http.Request) string {
+	// https://gtranslate.io/forum/http-real-http-forwarded-for-t2980.html
+	//current the order to get client ip is clientip > X-Forwarded-For > X-Real-IP > remote addr
+	var rip string
+
+	q := r.URL.Query()
+	if rip = q.Get("clientip"); rip != "" {
+		return rip
+	}
+
+	if forwordIP := r.Header.Get("X-Forwarded-For"); forwordIP != "" {
+		index := strings.Index(forwordIP, ",")
+		if index != -1 {
+			rip = forwordIP[:index]
+		} else {
+			rip = forwordIP
+		}
+		return rip
+	}
+
+	if rip = r.Header.Get("X-Real-IP"); rip == "" {
+		if nip, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+			rip = nip
+		}
+	}
+
+	return rip
 }
