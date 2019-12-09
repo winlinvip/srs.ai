@@ -50,7 +50,7 @@ func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, er
 	qq["__tag__:__client_ip__"] = GetOriginalClientIP(r)
 	qq["oua"] = r.Header.Get("User-Agent")
 	qq["__userAgent__"] = "agent"
-	qq["site"] = "robot.dingtalk.com"
+	qq["site"] = "dingtalk.com"
 	qq["path"] = "/dingtalk/robot"
 	qq["cost"] = fmt.Sprint(int64(fcDuration / time.Millisecond))
 	referer := r.Header.Get("Referer")
