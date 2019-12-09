@@ -25,8 +25,24 @@ var (
 	fcClient *fc.Client
 )
 
+// Limit the client for N request per second.
+var limitEcho chan bool
+
+func init() {
+	limitEcho = make(chan bool, 1)
+	go func() {
+		for {
+			limitEcho <- true
+			time.Sleep(1100 * time.Millisecond)
+		}
+	}()
+}
+
 func AIEcho(ctx context.Context, r *http.Request, q, qFiltered url.Values) (interface{}, error) {
 	ts := time.Now()
+
+	<-limitEcho
+	limitDuration := time.Now().Sub(ts)
 
 	args := make(map[string]string)
 	for k, _ := range q {
@@ -82,6 +98,7 @@ func AIEcho(ctx context.Context, r *http.Request, q, qFiltered url.Values) (inte
 		qqbs = string(qqb.Next(qqb.Len() - 1))
 	}
 
-	ol.Tf(ctx, "AI echo log %v, args=%v, fc cost %v result is %v", qqbs, args, fcDuration, fcResponse)
+	ol.Tf(ctx, "AI echo log %v, args=%v, limit cost=%v, fc cost=%v result is %v",
+		qqbs, args, limitDuration, fcDuration, fcResponse)
 	return fcResponse, nil
 }
