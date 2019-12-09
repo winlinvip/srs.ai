@@ -25,7 +25,7 @@ var (
 	fcClient *fc.Client
 )
 
-func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, error) {
+func AIEcho(ctx context.Context, r *http.Request, q, qFiltered url.Values) (interface{}, error) {
 	ts := time.Now()
 
 	args := make(map[string]string)
@@ -53,7 +53,7 @@ func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, er
 	qq["__userAgent__"] = "agent"
 	qq["site"] = "dingtalk.com"
 	qq["path"] = "/dingtalk/robot"
-	if query, err := url.QueryUnescape(q.Encode()); err == nil {
+	if query, err := url.QueryUnescape(qFiltered.Encode()); err == nil {
 		qq["query"] = query
 	}
 	qq["cost"] = fmt.Sprint(int64(fcDuration / time.Millisecond))

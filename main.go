@@ -105,7 +105,7 @@ func main() {
 			}
 		}
 
-		if result, err := AIEcho(ctx, r, q); err != nil {
+		if result, err := AIEcho(ctx, r, q, rr); err != nil {
 			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
 			return
 		} else {
