@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -52,6 +53,7 @@ func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, er
 	qq["__userAgent__"] = "agent"
 	qq["site"] = "dingtalk.com"
 	qq["path"] = "/dingtalk/robot"
+	qq["query"] = r.URL.RawQuery
 	qq["cost"] = fmt.Sprint(int64(fcDuration / time.Millisecond))
 	referer := r.Header.Get("Referer")
 	qq["oreferer"] = referer
@@ -61,13 +63,23 @@ func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, er
 		}
 		qq["__referer__"] = referer
 	}
-	if bb, err = json.Marshal(qq); err != nil {
-		return nil, err
+	var qqb bytes.Buffer
+	if enc := json.NewEncoder(&qqb); true {
+		enc.SetEscapeHTML(false)
+		if err := enc.Encode(qq); err != nil {
+			return nil, err
+		}
 	}
-	if _, err := io.WriteString(gLogfile, string(bb)+"\n"); err != nil {
+	if _, err := io.WriteString(gLogfile, qqb.String()); err != nil {
 		return nil, err
 	}
 
-	ol.Tf(ctx, "AI echo log %v, args=%v, fc cost %v result is %v", string(bb), args, fcDuration, fcResponse)
+	var qqbs string
+	if qqb.Len() > 1 {
+		// Trim the last \n.
+		qqbs = string(qqb.Next(qqb.Len() - 1))
+	}
+
+	ol.Tf(ctx, "AI echo log %v, args=%v, fc cost %v result is %v", qqbs, args, fcDuration, fcResponse)
 	return fcResponse, nil
 }
