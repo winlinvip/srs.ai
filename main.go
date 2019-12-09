@@ -10,6 +10,7 @@ import (
 	ol "github.com/ossrs/go-oryx-lib/logger"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -93,8 +94,7 @@ func main() {
 		}
 
 		// Query string.
-		q := r.Form
-		rr := make(map[string]interface{})
+		q, rr, qFiltered := r.Form, make(map[string]interface{}), url.Values{}
 		for k, _ := range q {
 			if strings.HasPrefix(k, "sys.ding.") {
 				continue
@@ -102,10 +102,11 @@ func main() {
 
 			if v := q.Get(k); v != "" && v != "nil" {
 				rr[k] = q.Get(k)
+				qFiltered.Set(k, v)
 			}
 		}
 
-		if result, err := AIEcho(ctx, r, q, rr); err != nil {
+		if result, err := AIEcho(ctx, r, q, qFiltered); err != nil {
 			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
 			return
 		} else {
