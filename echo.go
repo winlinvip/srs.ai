@@ -53,7 +53,9 @@ func AIEcho(ctx context.Context, r *http.Request, q url.Values) (interface{}, er
 	qq["__userAgent__"] = "agent"
 	qq["site"] = "dingtalk.com"
 	qq["path"] = "/dingtalk/robot"
-	qq["query"] = r.URL.RawQuery
+	if query, err := url.QueryUnescape(q.Encode()); err == nil {
+		qq["query"] = query
+	}
 	qq["cost"] = fmt.Sprint(int64(fcDuration / time.Millisecond))
 	referer := r.Header.Get("Referer")
 	qq["oreferer"] = referer
