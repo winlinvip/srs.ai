@@ -38,10 +38,16 @@ func init() {
 	}()
 }
 
-func AIEcho(ctx context.Context, r *http.Request, q, qFiltered url.Values) (interface{}, error) {
+func AIEcho(ctx context.Context, closeNotify <-chan bool, r *http.Request, q, qFiltered url.Values) (interface{}, error) {
 	ts := time.Now()
 
-	<-limitEcho
+	select {
+	case <-limitEcho:
+	case <-closeNotify:
+		return nil, context.Canceled
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 	limitDuration := time.Now().Sub(ts)
 
 	args := make(map[string]string)

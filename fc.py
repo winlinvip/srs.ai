@@ -43,6 +43,28 @@ def av_codecs(codec):
         return "不支持，是广电常用的协议，参考[#1147](https://github.com/ossrs/srs/issues/1147)"
     return NotSure%(codec)
 
+# 实体：传输协议
+def protocols(proto):
+    if proto in ['DASH']:
+        return "支持，可能会有些问题，参考[#299](https://github.com/ossrs/srs/issues/299)"
+    if proto in ['HDS']:
+        return "支持，用得比较少，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHDS)"
+    if proto in ['CMAF', 'HSS']:
+        return "不支持，用户还很少"
+    if proto in ['RTSP', 'TSOverUDP']:
+        return "支持推流，不支持播放，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_Streamer)"
+    if proto in ['HTTP']:
+        return "支持但不常用，HTTP-FLV最通用，HTTP-TS和HTTP-MP3偶然会有应用，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHttpStream)"
+    if proto in ['HLS']:
+        return "支持且常用，参考[wiki](https://github.com/ossrs/srs/wiki/v3_CN_DeliveryHLS)"
+    if proto in ['RTMP']:
+        return "支持且常用，参考[wiki](https://github.com/ossrs/srs/wiki/v1_CN_DeliveryRTMP)"
+    if proto in ['FLV']:
+        return "支持且常用，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHttpStream)"
+    if proto in ['AXP']:
+        return "不支持。AXP是阿里CDN的技术框架，可以让NGINX,Libevent等事件驱动框架快速集成QUIC,KCP,SRT等协议，取代TCP作为传输层，可能会(目前还没)开源"
+    return NotSure%(proto)
+
 # python -c 'import fc;print fc.handler(json.dumps({"key":"depends_env","arg0":"centos"}), "")'
 def handler(event, context):
     logger = logging.getLogger()
@@ -62,6 +84,8 @@ def handler(event, context):
         rr = fn_arg0(depends_env, o['arg0'])
     elif key == 'av_codecs':
         rr = fn_arg0(av_codecs, o['arg0'])
+    elif key == 'protocol':
+        rr = fn_arg0(protocols, o['arg0'])
     else:
         rr = [UnknownKnowledge]
 

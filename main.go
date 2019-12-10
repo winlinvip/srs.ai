@@ -106,8 +106,13 @@ func main() {
 			}
 		}
 
-		if result, err := AIEcho(ctx, r, q, qFiltered); err != nil {
-			oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
+		closeNotify := w.(http.CloseNotifier).CloseNotify()
+		if result, err := AIEcho(ctx, closeNotify, r, q, qFiltered); err != nil {
+			if oe.Cause(err) == context.Canceled {
+				oh.WriteData(ctx, w, r, "Canceled")
+			} else {
+				oh.WriteError(ctx, w, r, oe.Wrapf(err, "parse %v of %v", r.URL, q))
+			}
 			return
 		} else {
 			rr["result"] = result
