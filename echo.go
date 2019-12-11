@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"os/exec"
 	"time"
 )
@@ -20,6 +21,8 @@ const (
 )
 
 var (
+	// If file exists, directly execute the fc python file.
+	fcFile string
 	// By config.
 	fcAKID, fcAKSecret, fcEndpoint string
 	// Global variable.
@@ -77,8 +80,12 @@ func AIEcho(ctx context.Context, closeNotify <-chan bool, r *http.Request, q, qF
 		return nil, fmt.Errorf("marshal %v", args)
 	}
 
-	//fcResponse, err := fcExecute(bb)
-	fcResponse, err := directExecute(bb)
+	var fcResponse []byte
+	if fi, r0 := os.Lstat(fcFile); r0 == nil && !fi.IsDir() {
+		fcResponse, err = directExecute(bb)
+	} else {
+		fcResponse, err = fcExecute(bb)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("fc with %v err %v", string(bb), err)
 	}

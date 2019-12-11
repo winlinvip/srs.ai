@@ -24,6 +24,7 @@ func main() {
 	var logfile string
 	flag.StringVar(&logfile, "log", "", "Log file path. Default: stdout")
 
+	flag.StringVar(&fcFile, "fc-file", "", "If file exists, directly execute the fc python file.")
 	flag.StringVar(&fcAKID, "akid", "", "The AKID for FC")
 	flag.StringVar(&fcAKSecret, "aksecret", "", "The AKSecret for FC")
 	flag.StringVar(&fcEndpoint, "endpoint", "", "The endpoint for FC")
@@ -36,6 +37,8 @@ func main() {
 		fmt.Println(fmt.Sprintf("		The listen [ip]:port. Empty ip means 0.0.0.0, any interface."))
 		fmt.Println(fmt.Sprintf("	-log string"))
 		fmt.Println(fmt.Sprintf("		The log file path. Default: stdout."))
+		fmt.Println(fmt.Sprintf("	-fc-file string"))
+		fmt.Println(fmt.Sprintf("		If file exists, directly execute the fc python file."))
 		fmt.Println(fmt.Sprintf("	-akid string"))
 		fmt.Println(fmt.Sprintf("	-aksecret string"))
 		fmt.Println(fmt.Sprintf("		The AK(AccessKey) ID and Secret for FC(Function Compute)."))
@@ -58,7 +61,8 @@ func main() {
 
 	ctx := context.Background()
 	oh.Server = fmt.Sprintf("AI/%v", Version())
-	ol.Tf(ctx, "SRS AI/%v listen=%v, log=%v, ak=<%v %v %v>", Version(), listen, logfile, fcAKID, fcAKSecret, fcEndpoint)
+	ol.Tf(ctx, "SRS AI/%v listen=%v, log=%v, fc=file=%v, ak=<%v %v %v>",
+		Version(), listen, logfile, fcFile, fcAKID, fcAKSecret, fcEndpoint)
 
 	if logfile == "" {
 		gLogfile = os.Stdout
