@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os/exec"
 	"time"
 )
 
@@ -38,6 +39,23 @@ func init() {
 	}()
 }
 
+func fcExecute(input []byte) ([]byte, error) {
+	fcIn := fc.NewInvokeFunctionInput(fcServiceName, fcFuncName)
+	fcIn.Payload = &input
+
+	fcOut, err := fcClient.InvokeFunction(fcIn)
+	if err != nil {
+		return nil, fmt.Errorf("invoke fc %v %v err %v", fcServiceName, fcFuncName, err)
+	}
+
+	return fcOut.Payload, nil
+}
+
+func directExecute(input []byte) ([]byte, error) {
+	cmd := exec.Command("python", "fc.py", string(input))
+	return cmd.Output()
+}
+
 func AIEcho(ctx context.Context, closeNotify <-chan bool, r *http.Request, q, qFiltered url.Values) (interface{}, error) {
 	ts := time.Now()
 
@@ -59,15 +77,12 @@ func AIEcho(ctx context.Context, closeNotify <-chan bool, r *http.Request, q, qF
 		return nil, fmt.Errorf("marshal %v", args)
 	}
 
-	fcIn := fc.NewInvokeFunctionInput(fcServiceName, fcFuncName)
-	fcIn.Payload = &bb
-
-	fcOut, err := fcClient.InvokeFunction(fcIn)
+	//fcResponse, err := fcExecute(bb)
+	fcResponse, err := directExecute(bb)
 	if err != nil {
-		return nil, fmt.Errorf("invoke fc %v %v err %v", fcServiceName, fcFuncName, err)
+		return nil, fmt.Errorf("fc with %v err %v", string(bb), err)
 	}
 	fcDuration := time.Now().Sub(ts)
-	fcResponse := string(fcOut.Payload)
 
 	qq := make(map[string]string)
 	qq["__tag__:__client_ip__"] = GetOriginalClientIP(r)
@@ -105,6 +120,6 @@ func AIEcho(ctx context.Context, closeNotify <-chan bool, r *http.Request, q, qF
 	}
 
 	ol.Tf(ctx, "AI echo log %v, args=%v, limit cost=%v, fc cost=%v result is %v",
-		qqbs, args, limitDuration, fcDuration, fcResponse)
-	return fcResponse, nil
+		qqbs, args, limitDuration, fcDuration, string(fcResponse))
+	return string(fcResponse), nil
 }

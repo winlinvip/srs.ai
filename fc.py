@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json,logging,sys
 
@@ -65,6 +66,16 @@ def protocols(proto):
         return "不支持。AXP是阿里CDN的技术框架，可以让NGINX,Libevent等事件驱动框架快速集成QUIC,KCP,SRT等协议，取代TCP作为传输层，可能会(目前还没)开源"
     return NotSure%(proto)
 
+# 实体：录制点播
+def dvr(category):
+    if category in ['VOD']:
+        return "不支持，直接用HTTP分发就可以"
+    if category in ['TimeShift']:
+        return "不支持，需要业务系统做内容管理"
+    if category in ['DVR']:
+        return "支持，可录制为[FLV或MP4](https://github.com/ossrs/srs/wiki/v3_CN_DVR)"
+    return NotSure%(category)
+
 # python -c 'import fc;print fc.handler(json.dumps({"key":"depends_env","arg0":"centos"}), "")'
 def handler(event, context):
     logger = logging.getLogger()
@@ -86,6 +97,8 @@ def handler(event, context):
         rr = fn_arg0(av_codecs, o['arg0'])
     elif key == 'protocol':
         rr = fn_arg0(protocols, o['arg0'])
+    elif key == 'dvr':
+        rr = fn_arg0(dvr, o['arg0'])
     else:
         rr = [UnknownKnowledge]
 
@@ -93,3 +106,27 @@ def handler(event, context):
     if len(rr) == 1:
         return rr[0]
     return '\n- ' + '\n- '.join(rr)
+
+if __name__== "__main__":
+    argv = []
+    for arg in sys.argv:
+        if arg == 'python' or arg.endswith('.py'):
+            continue
+        argv.append(arg)
+
+    if len(argv) == 0:
+        print "No parameters"
+        sys.exit(-1)
+
+    if argv[0].startswith('{'):
+        print handler(argv[0], None)
+        sys.exit(0)
+
+    obj = {}
+    for index in range(len(argv)):
+        if index == 0:
+            obj['key'] = argv[index]
+        else:
+            obj['arg%d'%(index-1)] = argv[index]
+    print handler(json.dumps(obj), None)
+    sys.exit(0)
