@@ -52,7 +52,7 @@ def protocols(proto):
         return "支持，用得比较少，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHDS)"
     if proto in ['CMAF', 'HSS']:
         return "不支持，用户还很少"
-    if proto in ['RTSP']:
+    if proto in ['MPEGTS', 'RTSP']:
         return "支持推流，不支持播放，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_Streamer)"
     if proto in ['HTTP']:
         return "支持但不常用，HTTP-FLV最通用，HTTP-TS和HTTP-MP3偶然会有应用，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHttpStream)"
