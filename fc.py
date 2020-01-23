@@ -41,7 +41,7 @@ def av_codecs(codec):
     if codec in ["Opus"] :
         return "不支持，是WebRTC的音频编码，参考[#307](https://github.com/ossrs/srs/issues/307)"
     if codec in ["SRT"]:
-        return "不支持，是广电常用的协议，参考[#1147](https://github.com/ossrs/srs/issues/1147)"
+        return "实验性支持，是广电常用的协议，参考[#1147](https://github.com/ossrs/srs/issues/1147)"
     return NotSure%(codec)
 
 # 实体：传输协议
@@ -63,7 +63,7 @@ def protocols(proto):
     if proto in ['FLV']:
         return "支持且常用，参考[wiki](https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHttpStream)"
     if proto in ['AXP']:
-        return "不支持。AXP是阿里CDN的技术框架，可以让NGINX,Libevent等事件驱动框架快速集成QUIC,KCP,SRT等协议，取代TCP作为传输层，可能会(目前还没)开源"
+        return "不支持。AXP是阿里CDN的技术框架，可以让NGINX,Libevent等事件驱动框架快速集成[QUIC](https://github.com/ossrs/srs/issues/1315),[KCP](https://github.com/ossrs/srs/issues/770),[SRT](https://github.com/ossrs/srs/issues/1147)等协议，取代TCP作为传输层，可能会(目前还没)开源"
     if proto in ['RTP']:
         return "不支持，RTP/SRTP是WebRTC的传输协议，参考[#307](https://github.com/ossrs/srs/issues/307)"
     if proto in ['PS']:
